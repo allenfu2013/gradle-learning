@@ -1,0 +1,51 @@
+group 'me.coding'
+version '1.0'
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        maven { url "http://localhost:7000/repository/maven-central/"}
+    }
+
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.allJava
+        classifier = 'sources'
+    }
+
+    task javadocJar(type: Jar) {
+        from javadoc
+        classifier = 'javadoc'
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId = project.name
+                from components.java
+
+                artifact sourcesJar
+                artifact javadocJar
+            }
+        }
+
+        repositories {
+            maven {
+                def releasesRepoUrl = "http://localhost:7000/repository/maven-releases/"
+                def snapshotsRepoUrl = "http://localhost:7000/repository/maven-snapshots"
+                url = project.version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+                credentials {
+                    username = 'admin'
+                    password = 'admin123'
+                }
+            }
+        }
+    }
+}
+
+
